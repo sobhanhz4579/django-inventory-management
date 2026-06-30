@@ -116,7 +116,7 @@ class ItemForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["code"].required = False  # کد اختیاری برای تولید خودکار
+        self.fields["code"].required = False  
         self.fields["name"].required = True
         self.fields["description"].required = False
         self.fields["shelf"].required = False
@@ -139,8 +139,8 @@ class ItemForm(forms.ModelForm):
             self.initial["entry_date"] = (
                 f"{j_date.year}/{j_date.month:02d}/{j_date.day:02d}"
             )
-        if not self.instance.pk:  # تولید کد خودکار برای کالاهای جدید
-            self.initial["code"] = str(Item.objects.count() + 1)  # کد به صورت عدد ساده
+        if not self.instance.pk:  
+            self.initial["code"] = str(Item.objects.count() + 1)  
 
     def clean_entry_date(self):
         entry_date = self.cleaned_data.get("entry_date")
@@ -153,7 +153,7 @@ class ItemForm(forms.ModelForm):
                 raise forms.ValidationError(
                     "فرمت تاریخ نامعتبر است. لطفاً از فرمت YYYY/MM/DD استفاده کنید."
                 )
-        return None  # اجازه می‌دهیم None باشد، زیرا سیگنال مدل تاریخ را تنظیم می‌کند
+        return None  
 
     def clean_code(self):
         code = self.cleaned_data.get("code")
