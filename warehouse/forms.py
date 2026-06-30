@@ -158,7 +158,7 @@ class ItemForm(forms.ModelForm):
     def clean_code(self):
         code = self.cleaned_data.get("code")
         if not code:
-            code = str(Item.objects.count() + 1)  # تولید کد به صورت عدد ساده
+            code = str(Item.objects.count() + 1)
         if (
             Item.objects.filter(code=code)
             .exclude(pk=self.instance.pk if self.instance else None)
