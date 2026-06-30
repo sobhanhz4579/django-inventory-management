@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load jalali_filters %}
+{% block title %}خروج کالا{% endblock %}
+{% block header_title %}خروج کالا{% endblock %}
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">خروج کالا</h2>
+    <div class="card">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="row g-3">
+                    {% for field in form %}
+                    <div class="col-md-4">
+                        <div class="form-floating">
+                            {{ field }}
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-danger"><i class="bi bi-arrow-up-circle me-2"></i>ثبت خروج</button>
+                    <a href="{% url 'warehouse:dashboard' %}" class="btn btn-secondary"><i class="bi bi-arrow-right-circle me-2"></i>بازگشت</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

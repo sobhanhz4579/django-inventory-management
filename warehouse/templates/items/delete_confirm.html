@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}حذف کالا {{ item.name }}{% endblock %}
+{% block header_title %}حذف کالا {{ item.name }}{% endblock %}
+{% block content %}
+<div class="container my-4">
+    <h2 class="mb-4 text-center">حذف کالا {{ item.name }}</h2>
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <p class="alert alert-warning">آیا مطمئن هستید که می‌خواهید کالا "{{ item.name }}" را حذف کنید؟ این عملیات قابل بازگشت نیست.</p>
+            <form method="post">
+                {% csrf_token %}
+                <div class="text-center">
+                    <button type="submit" class="btn btn-danger"><i class="bi bi-trash me-2"></i>حذف</button>
+                    <a href="{% url 'warehouse:items_list' %}" class="btn btn-secondary"><i class="bi bi-arrow-right-circle me-2"></i>انصراف</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

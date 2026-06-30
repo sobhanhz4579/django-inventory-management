@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}حذف کاربر {{ user.username }}{% endblock %}
+{% block header_title %}حذف کاربر {{ user.username }}{% endblock %}
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">حذف کاربر {{ user.username }}</h2>
+    <div class="card">
+        <div class="card-body">
+            <p>آیا مطمئن هستید که می‌خواهید کاربر "{{ user.username }}" را حذف کنید؟ این عملیات قابل بازگشت نیست.</p>
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger"><i class="bi bi-trash me-2"></i>حذف</button>
+                <a href="{% url 'warehouse:users_list' %}" class="btn btn-secondary"><i class="bi bi-arrow-right-circle me-2"></i>انصراف</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

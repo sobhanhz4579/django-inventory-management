@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}افزودن کاربر{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">افزودن کاربر</h2>
+    <div class="card">
+        <div class="card-body">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+            {% if form.errors %}
+                <div class="alert alert-danger">
+                    <ul>
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <li>{{ field.label }}: {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+            <form method="post" id="userForm">
+                {% csrf_token %}
+                <div class="row g-3">
+                    {% for field in form %}
+                    <div class="col-md-4">
+                        <div class="form-floating">
+                            {{ field }}
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {% if field.help_text %}
+                                <small class="form-text text-muted">{{ field.help_text }}</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary"><i class="bi bi-save me-2"></i>ثبت</button>
+                    <a href="{% url 'warehouse:users_list' %}" class="btn btn-secondary"><i class="bi bi-arrow-right-circle me-2"></i>بازگشت</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const roleSelect = document.querySelector('#id_role');
+        const usernameInput = document.querySelector('#id_username');
+        function toggleUsernameRequired() {
+            if (roleSelect.value === 'customer') {
+                usernameInput.removeAttribute('required');
+                usernameInput.classList.remove('is-invalid');
+                usernameInput.placeholder = 'اختیاری (به‌صورت خودکار تولید می‌شود)';
+            } else {
+                usernameInput.setAttribute('required', 'required');
+                usernameInput.placeholder = 'الزامی';
+            }
+        }
+        toggleUsernameRequired();
+        roleSelect.addEventListener('change', toggleUsernameRequired);
+    });
+</script>
+{% endblock %}
+

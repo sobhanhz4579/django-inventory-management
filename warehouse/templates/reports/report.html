@@ -1,0 +1,251 @@
+{% extends 'base.html' %}
+{% load jalali_filters static %}
+
+{% block header_title %}گزارشات کامل سیستم{% endblock %}
+{% block title %}گزارشات{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row g-4">
+
+        <!-- تراکنش‌های ورود -->
+        <div class="col-12 col-lg-12">
+            <div class="card shadow-sm rounded mb-4">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-box-arrow-in-down me-2"></i>
+                        تراکنش‌های ورود
+                    </h5>
+                    <span class="badge bg-light text-dark">{{ recent_incoming.paginator.count }} مورد</span>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover align-middle text-center">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ردیف</th>
+                                    <th>کد کالا</th>
+                                    <th>نام کالا</th>
+                                    <th>تعداد</th>
+                                    <th>قیمت واحد</th>
+                                    <th>تاریخ</th>
+                                    <th>کاربر</th>
+                                    <th>تأمین‌کننده</th>
+                                    <th>یادداشت</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for transaction in recent_incoming %}
+                                    <tr>
+                                        <td>{{ recent_incoming.start_index|add:forloop.counter0 }}</td>
+                                        <td>{{ transaction.item.code }}</td>
+                                        <td>{{ transaction.item.name }}</td>
+                                        <td>{{ transaction.quantity }}</td>
+                                        <td>{{ transaction.price|floatformat:2 }} تومان</td>
+                                        <td>{{ transaction.date|to_jalali_date }}</td>
+                                        <td>{{ transaction.user.get_full_name|default:transaction.user.username }}</td>
+                                        <td>{{ transaction.supplier|default:'-' }}</td>
+                                        <td>{{ transaction.notes|default:'-' }}</td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="9">
+                                            <div class="alert alert-info mb-0 text-center">هیچ تراکنش ورودی یافت نشد.</div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- صفحه‌بندی -->
+                    {% if recent_incoming.has_other_pages %}
+                        <nav aria-label="Page navigation for incoming transactions">
+                            <ul class="pagination justify-content-center flex-wrap">
+                                {% if recent_incoming.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?incoming_page={{ recent_incoming.previous_page_number }}&outgoing_page={{ recent_outgoing.number }}&activities_page={{ activities.number }}">&laquo;</a>
+                                    </li>
+                                {% endif %}
+
+                                {% for num in recent_incoming.paginator.page_range %}
+                                    {% if recent_incoming.number == num %}
+                                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                                    {% elif num > recent_incoming.number|add:-3 and num < recent_incoming.number|add:3 %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?incoming_page={{ num }}&outgoing_page={{ recent_outgoing.number }}&activities_page={{ activities.number }}">{{ num }}</a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+
+                                {% if recent_incoming.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?incoming_page={{ recent_incoming.next_page_number }}&outgoing_page={{ recent_outgoing.number }}&activities_page={{ activities.number }}">&raquo;</a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- تراکنش‌های خروج -->
+        <div class="col-12 col-lg-12">
+            <div class="card shadow-sm rounded mb-4">
+                <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-box-arrow-up me-2"></i>
+                        تراکنش‌های خروج
+                    </h5>
+                    <span class="badge bg-light text-dark">{{ recent_outgoing.paginator.count }} مورد</span>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover align-middle text-center">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ردیف</th>
+                                    <th>کد کالا</th>
+                                    <th>نام کالا</th>
+                                    <th>تعداد</th>
+                                    <th>قیمت واحد</th>
+                                    <th>تاریخ</th>
+                                    <th>کاربر</th>
+                                    <th>مقصد</th>
+                                    <th>یادداشت</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for transaction in recent_outgoing %}
+                                    <tr>
+                                        <td>{{ recent_outgoing.start_index|add:forloop.counter0 }}</td>
+                                        <td>{{ transaction.item.code }}</td>
+                                        <td>{{ transaction.item.name }}</td>
+                                        <td>{{ transaction.quantity }}</td>
+                                        <td>{{ transaction.price|floatformat:2 }} تومان</td>
+                                        <td>{{ transaction.date|to_jalali_date }}</td>
+                                        <td>{{ transaction.user.get_full_name|default:transaction.user.username }}</td>
+                                        <td>{{ transaction.destination|default:'-' }}</td>
+                                        <td>{{ transaction.notes|default:'-' }}</td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="9">
+                                            <div class="alert alert-info mb-0 text-center">هیچ تراکنش خروجی یافت نشد.</div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- صفحه‌بندی -->
+                    {% if recent_outgoing.has_other_pages %}
+                        <nav aria-label="Page navigation for outgoing transactions">
+                            <ul class="pagination justify-content-center flex-wrap">
+                                {% if recent_outgoing.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?outgoing_page={{ recent_outgoing.previous_page_number }}&incoming_page={{ recent_incoming.number }}&activities_page={{ activities.number }}">&laquo;</a>
+                                    </li>
+                                {% endif %}
+
+                                {% for num in recent_outgoing.paginator.page_range %}
+                                    {% if recent_outgoing.number == num %}
+                                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                                    {% elif num > recent_outgoing.number|add:-3 and num < recent_outgoing.number|add:3 %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?outgoing_page={{ num }}&incoming_page={{ recent_incoming.number }}&activities_page={{ activities.number }}">{{ num }}</a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+
+                                {% if recent_outgoing.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?outgoing_page={{ recent_outgoing.next_page_number }}&incoming_page={{ recent_incoming.number }}&activities_page={{ activities.number }}">&raquo;</a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- فعالیت‌های اخیر -->
+        <div class="col-12 col-lg-12">
+            <div class="card shadow-sm rounded">
+                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-activity me-2"></i>
+                        فعالیت‌های سیستم
+                    </h5>
+                    <span class="badge bg-light text-dark">{{ activities.paginator.count }} مورد</span>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover align-middle text-center">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ردیف</th>
+                                    <th>کاربر</th>
+                                    <th>نوع فعالیت</th>
+                                    <th>توضیحات</th>
+                                    <th>تاریخ و زمان</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for activity in activities %}
+                                    <tr>
+                                        <td>{{ activities.start_index|add:forloop.counter0 }}</td>
+                                        <td>{{ activity.user.get_full_name|default:activity.user.username }}</td>
+                                        <td>{{ activity.get_type_display }}</td>
+                                        <td class="text-start">{{ activity.description }}</td>
+                                        <td>{{ activity.date|to_jalali_datetime }}</td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="5">
+                                            <div class="alert alert-info mb-0 text-center">هیچ فعالیتی یافت نشد.</div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- صفحه‌بندی -->
+                    {% if activities.has_other_pages %}
+                        <nav aria-label="Page navigation for activities">
+                            <ul class="pagination justify-content-center flex-wrap">
+                                {% if activities.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?activities_page={{ activities.previous_page_number }}&incoming_page={{ recent_incoming.number }}&outgoing_page={{ recent_outgoing.number }}">&laquo;</a>
+                                    </li>
+                                {% endif %}
+
+                                {% for num in activities.paginator.page_range %}
+                                    {% if activities.number == num %}
+                                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                                    {% elif num > activities.number|add:-3 and num < activities.number|add:3 %}
+                                        <li class="page-item">
+                                            <a class="page-link" href="?activities_page={{ num }}&incoming_page={{ recent_incoming.number }}&outgoing_page={{ recent_outgoing.number }}">{{ num }}</a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+
+                                {% if activities.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?activities_page={{ activities.next_page_number }}&incoming_page={{ recent_incoming.number }}&outgoing_page={{ recent_outgoing.number }}">&raquo;</a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

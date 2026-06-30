@@ -1,0 +1,17 @@
+Django
+psycopg2-binary
+python-dotenv
+pandas
+openpyxl
+django-filter
+django-cors-headers
+djangorestframework
+python-decouple
+jdatetime
+persian_tools
+Pillow
+django-chartjs
+django-jalali
+unidecode
+django-widget-tweaks
+pytz

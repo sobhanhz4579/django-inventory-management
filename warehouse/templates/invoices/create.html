@@ -1,0 +1,352 @@
+{% extends "base.html" %}
+{% load jalali_filters %}
+{% block title %}ایجاد فاکتور{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h2 class="mb-4">ایجاد فاکتور جدید</h2>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+        <form method="post" id="invoice-form">
+            {% csrf_token %}
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">اطلاعات فاکتور</h5>
+                    <div class="row g-3">
+                        {% for field in form %}
+                            <div class="col-md-4">
+                                <div class="form-floating">
+                                    {{ field }}
+                                    {% if field.label not in 'Id,حذف,فاکتور' %}
+                                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                    {% endif %}
+                                    {% if field.errors %}
+                                        <div class="text-danger">
+                                            {% for error in field.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">اقلام فاکتور</h5>
+                    {{ formset.management_form }}
+                    <div id="formset-container" class="mb-3">
+                        {% for form in formset %}
+                            <div class="formset-row row g-3 mb-3 align-items-start border p-2 rounded"
+                                 data-form-index="{{ forloop.counter0 }}">
+                                {% for field in form %}
+                                    {% if field.name not in 'DELETE,id,invoice,apply_profit,apply_shipping,apply_discount' %}
+                                        <div class="col-md-3">
+                                            <div class="form-floating">
+                                                {{ field }}
+                                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                                {% if field.errors %}
+                                                    <div class="text-danger">
+                                                        {% for error in field.errors %}
+                                                            <small>{{ error }}</small>
+                                                        {% endfor %}
+                                                    </div>
+                                                {% endif %}
+                                                {% if field.name == 'quantity' %}
+                                                    <div class="text-danger quantity-error"
+                                                         id="quantity-error-{{ forloop.parentloop.counter0 }}"></div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+
+                                <!-- کنترل‌های هر ردیف -->
+                                <div class="col-md-4 d-flex flex-column gap-2 small">
+                                    <div class="form-check">
+                                        {{ form.apply_profit }}
+                                        <label class="form-check-label" for="{{ form.apply_profit.id_for_label }}">اعمال درصد سود</label>
+                                    </div>
+                                    <div class="form-check">
+                                        {{ form.apply_shipping }}
+                                        <label class="form-check-label" for="{{ form.apply_shipping.id_for_label }}">اعمال هزینه ارسال</label>
+                                    </div>
+                                    <div class="form-check">
+                                        {{ form.apply_discount }}
+                                        <label class="form-check-label" for="{{ form.apply_discount.id_for_label }}">اعمال درصد تخفیف</label>
+                                    </div>
+
+                                    <div>درصد سود: <span class="fw-bold"
+                                                         id="profit-value-{{ forloop.counter0 }}">-</span></div>
+                                    <div>هزینه ارسال: <span class="fw-bold"
+                                                            id="shipping-value-{{ forloop.counter0 }}">-</span></div>
+                                    <div>درصد تخفیف: <span class="fw-bold"
+                                                           id="discount-value-{{ forloop.counter0 }}">-</span></div>
+
+                                    <div class="d-none">
+                                        {{ form.DELETE }}
+                                        {{ form.id }}
+                                        {{ form.invoice }}
+                                    </div>
+                                </div>
+
+                                <!-- دکمه حذف -->
+                                <div class="col-md-2 d-flex align-items-center">
+                                    <button type="button" class="btn btn-outline-danger remove-row">
+                                        <i class="bi bi-trash"></i> حذف
+                                    </button>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <button type="button" class="btn btn-outline-primary add-formset-row mt-3">
+                        <i class="bi bi-plus-circle me-2"></i>افزودن ردیف
+                    </button>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-save me-2"></i>ثبت فاکتور</button>
+                <a href="{% url 'warehouse:invoices_list' %}" class="btn btn-secondary"><i
+                        class="bi bi-arrow-right-circle me-2"></i>بازگشت</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const container = document.getElementById('formset-container');
+            const addButton = document.querySelector('.add-formset-row');
+            const totalForms = document.querySelector('#id_items-TOTAL_FORMS');
+
+            // تابع برای تنظیم دکمه‌های حذف
+            function setupDeleteButtons() {
+                container.querySelectorAll('.remove-row').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        const row = btn.closest('.formset-row');
+                        const deleteInput = row.querySelector('input[name$="-DELETE"]');
+                        if (deleteInput) {
+                            deleteInput.checked = true;
+                            row.style.display = 'none';
+                        } else {
+                            row.remove();
+                        }
+                        updateFormIndices();
+                    });
+                });
+            }
+
+            // تابع برای به‌روزرسانی ایندکس‌های فرم
+            function updateFormIndices() {
+                const rows = container.querySelectorAll('.formset-row');
+                rows.forEach((row, index) => {
+                    row.setAttribute('data-form-index', index);
+                    const inputs = row.querySelectorAll('input, select, textarea');
+                    inputs.forEach(input => {
+                        if (input.name) {
+                            input.name = input.name.replace(/items-\d+-/, `items-${index}-`);
+                            if (input.id) {
+                                input.id = input.id.replace(/items-\d+-/, `items-${index}-`);
+                            }
+                        }
+                    });
+                    const labels = row.querySelectorAll('label');
+                    labels.forEach(label => {
+                        if (label.htmlFor) {
+                            label.htmlFor = label.htmlFor.replace(/items-\d+-/, `items-${index}-`);
+                        }
+                    });
+                    const spans = row.querySelectorAll('[id^="profit-value-"], [id^="shipping-value-"], [id^="discount-value-"], [id^="quantity-error-"]');
+                    spans.forEach(span => {
+                        span.id = span.id.replace(/-\d+$/, `-${index}`);
+                    });
+                });
+                totalForms.value = rows.length;
+            }
+
+            // تابع برای به‌روزرسانی مقادیر نمایش داده‌شده
+            function updateLabels(formIndex, data) {
+                const profitSpan = document.getElementById(`profit-value-${formIndex}`);
+                const shippingSpan = document.getElementById(`shipping-value-${formIndex}`);
+                const discountSpan = document.getElementById(`discount-value-${formIndex}`);
+                profitSpan.textContent = data.profit_margin !== undefined ? data.profit_margin.toFixed(1) : '-';
+                shippingSpan.textContent = data.shipping_cost !== undefined ? data.shipping_cost : '-';
+                discountSpan.textContent = data.discount_percentage !== undefined ? data.discount_percentage.toFixed(1) : '-';
+            }
+
+            // تابع برای محاسبه قیمت واحد
+            function calculateUnitPrice(formIndex) {
+                const formRow = document.querySelector(`.formset-row[data-form-index="${formIndex}"]`);
+                const itemSelect = formRow.querySelector(`select[name="items-${formIndex}-item"]`);
+                const unitPriceInput = formRow.querySelector(`input[name="items-${formIndex}-unit_price"]`);
+                const applyProfit = formRow.querySelector(`input[name="items-${formIndex}-apply_profit"]`);
+                const applyShipping = formRow.querySelector(`input[name="items-${formIndex}-apply_shipping"]`);
+                const applyDiscount = formRow.querySelector(`input[name="items-${formIndex}-apply_discount"]`);
+                const quantityInput = formRow.querySelector(`input[name="items-${formIndex}-quantity"]`);
+                const errorDiv = formRow.querySelector(`#quantity-error-${formIndex}`);
+
+                if (!itemSelect.value) {
+                    unitPriceInput.value = '';
+                    updateLabels(formIndex, {});
+                    if (errorDiv) errorDiv.textContent = '';
+                    return;
+                }
+
+                fetch(`/items/get-details/?item_id=${itemSelect.value}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            unitPriceInput.value = '';
+                            updateLabels(formIndex, {});
+                            if (errorDiv) errorDiv.textContent = '';
+                            return;
+                        }
+
+                        const quantity = parseInt(quantityInput.value) || 0;
+                        if (quantity <= 0) {
+                            errorDiv.textContent = 'تعداد باید حداقل 1 باشد.';
+                            quantityInput.value = 1;
+                            return;
+                        }
+                        if (data.stock < quantity) {
+                            errorDiv.textContent = `موجودی کالا کافی نیست. موجودی فعلی: ${data.stock}`;
+                            quantityInput.value = data.stock;
+                            return;
+                        } else {
+                            errorDiv.textContent = '';
+                        }
+
+                        updateLabels(formIndex, data);
+
+                        let price = data.sale_price || data.last_price || 0;
+                        if (applyProfit.checked && data.profit_margin) {
+                            price += price * (data.profit_margin / 100);
+                        }
+                        if (applyShipping.checked && data.shipping_cost) {
+                            price += data.shipping_cost;
+                        }
+                        if (applyDiscount.checked && data.discount_percentage) {
+                            price -= price * (data.discount_percentage / 100);
+                        }
+                        unitPriceInput.value = Math.max(price.toFixed(2), 0);
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        unitPriceInput.value = '';
+                        updateLabels(formIndex, {});
+                        if (errorDiv) errorDiv.textContent = 'خطا در دریافت اطلاعات کالا';
+                    });
+            }
+
+            // تابع برای تنظیم رویدادهای هر ردیف
+            function setupFormRow(formIndex) {
+                const formRow = document.querySelector(`.formset-row[data-form-index="${formIndex}"]`);
+                const itemSelect = formRow.querySelector(`select[name="items-${formIndex}-item"]`);
+                const checkboxes = formRow.querySelectorAll('input[type="checkbox"]');
+                const quantityInput = formRow.querySelector(`input[name="items-${formIndex}-quantity"]`);
+
+                itemSelect.addEventListener('change', () => calculateUnitPrice(formIndex));
+                checkboxes.forEach(cb => cb.addEventListener('change', () => calculateUnitPrice(formIndex)));
+                if (quantityInput) {
+                    quantityInput.addEventListener('input', () => calculateUnitPrice(formIndex));
+                }
+
+                if (itemSelect.value) {
+                    calculateUnitPrice(formIndex);
+                }
+            }
+
+            // تنظیم رویدادهای اولیه
+            container.querySelectorAll('.formset-row').forEach(row => {
+                const formIndex = row.getAttribute('data-form-index');
+                setupFormRow(formIndex);
+            });
+            setupDeleteButtons();
+
+            // افزودن ردیف جدید
+            addButton.addEventListener('click', function () {
+                const formCount = parseInt(totalForms.value);
+                const newForm = container.querySelector('.formset-row').cloneNode(true);
+                newForm.setAttribute('data-form-index', formCount);
+
+                // پاک کردن مقادیر فیلدها
+                newForm.querySelectorAll('input, select').forEach(input => {
+                    if (input.type === 'checkbox') {
+                        input.checked = true;
+                    } else if (input.type !== 'hidden') {
+                        input.value = '';
+                    }
+                });
+
+                // به‌روزرسانی ایندکس‌ها
+                newForm.innerHTML = newForm.innerHTML.replace(/items-\d+-/g, `items-${formCount}-`);
+                newForm.querySelector(`[id^="profit-value-"]`).id = `profit-value-${formCount}`;
+                newForm.querySelector(`[id^="shipping-value-"]`).id = `shipping-value-${formCount}`;
+                newForm.querySelector(`[id^="discount-value-"]`).id = `discount-value-${formCount}`;
+                newForm.querySelector(`[id^="quantity-error-"]`).id = `quantity-error-${formCount}`;
+
+                container.appendChild(newForm);
+                setupFormRow(formCount);
+                setupDeleteButtons();
+                updateFormIndices();
+            });
+
+            // اعتبارسنجی قبل از ارسال فرم
+            document.getElementById('invoice-form').addEventListener('submit', async function (event) {
+                event.preventDefault();
+                const rows = container.querySelectorAll('.formset-row');
+                let hasError = false;
+
+                const promises = Array.from(rows).map(row => {
+                    const formIndex = row.getAttribute('data-form-index');
+                    const quantityInput = row.querySelector(`input[name="items-${formIndex}-quantity"]`);
+                    const itemSelect = row.querySelector(`select[name="items-${formIndex}-item"]`);
+                    const errorDiv = row.querySelector(`#quantity-error-${formIndex}`);
+
+                    if (itemSelect.value && quantityInput.value) {
+                        return fetch(`/items/get-details/?item_id=${itemSelect.value}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                const quantity = parseInt(quantityInput.value) || 0;
+                                if (quantity <= 0) {
+                                    errorDiv.textContent = 'تعداد باید حداقل 1 باشد.';
+                                    quantityInput.value = 1;
+                                    hasError = true;
+                                } else if (data.stock < quantity) {
+                                    errorDiv.textContent = `موجودی کالا کافی نیست. موجودی فعلی: ${data.stock}`;
+                                    quantityInput.value = data.stock;
+                                    hasError = true;
+                                } else {
+                                    errorDiv.textContent = '';
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                errorDiv.textContent = 'خطا در دریافت اطلاعات کالا';
+                                hasError = true;
+                            });
+                    }
+                    return Promise.resolve();
+                });
+
+                await Promise.all(promises);
+
+                if (hasError) {
+                    alert('لطفاً خطاهای موجود در فرم را برطرف کنید.');
+                } else {
+                    this.submit();
+                }
+            });
+        });
+    </script>
+{% endblock %}
+

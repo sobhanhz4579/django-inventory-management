@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load jalali_filters %}
+
+{% block title %}افزودن کالا{% endblock %}
+
+{% block content %}
+    <div class="container my-4">
+        <h2 class="mb-4 text-center">افزودن کالای جدید</h2>
+        <form method="post" id="item-form">
+            {% csrf_token %}
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">اطلاعات کالا</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        {% for field in form %}
+                            {% if field.name not in 'quantity,price,supplier' %}
+                                <div class="col-md-4">
+                                    <div class="form-floating">
+                                        {{ field }}
+                                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                        {% if field.errors %}
+                                            <div class="text-danger mt-1">
+                                                {% for error in field.errors %}
+                                                    <small>{{ error }}</small>
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                        {% if field.help_text %}
+                                            <small class="form-text text-muted">{{ field.help_text }}</small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <h5 class="card-title mt-4">اطلاعات تراکنش ورود</h5>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="form-floating">
+                                {{ form.quantity }}
+                                <label for="{{ form.quantity.id_for_label }}">{{ form.quantity.label }}</label>
+                                {% if form.quantity.errors %}
+                                    <div class="text-danger mt-1">
+                                        {% for error in form.quantity.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-floating">
+                                {{ form.price }}
+                                <label for="{{ form.price.id_for_label }}">{{ form.price.label }}</label>
+                                {% if form.price.errors %}
+                                    <div class="text-danger mt-1">
+                                        {% for error in form.price.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-floating">
+                                {{ form.supplier }}
+                                <label for="{{ form.supplier.id_for_label }}">{{ form.supplier.label }}</label>
+                                {% if form.supplier.errors %}
+                                    <div class="text-danger mt-1">
+                                        {% for error in form.supplier.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-save me-2"></i>ثبت کالا</button>
+                <a href="{% url 'warehouse:items_list' %}" class="btn btn-secondary"><i
+                        class="bi bi-arrow-right-circle me-2"></i>بازگشت</a>
+            </div>
+        </form>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('item-form');
+            form.addEventListener('submit', function (event) {
+                const code = document.querySelector('input[name="code"]');
+                const name = document.querySelector('input[name="name"]');
+                if (!code.value.trim()) {
+                    event.preventDefault();
+                    alert('لطفاً کد کالا را وارد کنید.');
+                    code.focus();
+                    return;
+                }
+                if (!name.value.trim()) {
+                    event.preventDefault();
+                    alert('لطفاً نام کالا را وارد کنید.');
+                    name.focus();
+                    return;
+                }
+            });
+        });
+    </script>
+{% endblock %}

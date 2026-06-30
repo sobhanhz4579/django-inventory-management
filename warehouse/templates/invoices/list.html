@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% load static jalali_filters %}
+{% block title %}فاکتورها{% endblock %}
+
+{% block content %}
+    <div class="container-fluid py-4">
+        <h2 class="mb-4">لیست فاکتورها</h2>
+
+        <!-- فرم فیلتر پیشرفته -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title mb-3"><i class="bi bi-funnel me-2"></i>فیلترهای پیشرفته</h5>
+                <form method="get" class="row g-3">
+                    <div class="col-md-6 col-lg-3">
+                        <input type="text" name="q" class="form-control" placeholder="جستجو در همه فیلدها"
+                               value="{{ request.GET.q }}">
+                    </div>
+                    <div class="col-md-6 col-lg-2">
+                        <input type="number" step="0.01" name="min_amount" class="form-control" placeholder="حداقل مبلغ"
+                               value="{{ request.GET.min_amount }}">
+                    </div>
+                    <div class="col-md-6 col-lg-2">
+                        <input type="number" step="0.01" name="max_amount" class="form-control"
+                               placeholder="حداکثر مبلغ" value="{{ request.GET.max_amount }}">
+                    </div>
+                    <div class="col-md-6 col-lg-2">
+                        <input type="text" name="customer" class="form-control" placeholder="مشتری یا شرکت"
+                               value="{{ request.GET.customer }}">
+                    </div>
+                    <div class="col-md-6 col-lg-2">
+                        <input type="text" name="date_from" class="form-control" placeholder="تاریخ از (1404/01/01)"
+                               value="{{ request.GET.date_from }}">
+                    </div>
+                    <div class="col-md-6 col-lg-2">
+                        <input type="text" name="date_to" class="form-control" placeholder="تاریخ تا (1404/12/29)"
+                               value="{{ request.GET.date_to }}">
+                    </div>
+                    <div class="col-md-6 col-lg-2">
+                        <select name="has_return" class="form-select">
+                            <option value="">وضعیت بازگشت</option>
+                            <option value="yes" {% if request.GET.has_return == 'yes' %}selected{% endif %}>بازگشت
+                                داشته
+                            </option>
+                            <option value="no" {% if request.GET.has_return == 'no' %}selected{% endif %}>بدون بازگشت
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 col-lg-2">
+                        <button type="submit" class="btn btn-primary w-100"><i class="bi bi-funnel me-2"></i>فیلتر
+                        </button>
+                    </div>
+                    {% if request.GET %}
+                        <div class="col-md-6 col-lg-2">
+                            <a href="{% url 'warehouse:invoices_list' %}" class="btn btn-outline-secondary w-100">حذف
+                                فیلترها</a>
+                        </div>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+
+        <!-- دکمه ایجاد فاکتور -->
+        <div class="mb-4 text-end">
+            <a href="{% url 'warehouse:invoice_create' %}" class="btn btn-success px-4">
+                <i class="bi bi-plus-circle me-2"></i>ایجاد فاکتور جدید
+            </a>
+        </div>
+
+        <!-- لیست فاکتورها -->
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title mb-3">فاکتورها</h5>
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered align-middle text-center">
+                        <thead class="table-dark">
+                        <tr>
+                            <th>ردیف</th>
+                            <th>شماره فاکتور</th>
+                            <th>تاریخ</th>
+                            <th>مشتری / شرکت</th>
+                            <th>مبلغ کل</th>
+                            <th>وضعیت بازگشت</th>
+                            <th>عملیات</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for data in invoice_data %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>
+                                    <a href="{% url 'warehouse:invoice_detail' data.invoice.id %}">{{ data.invoice.number }}</a>
+                                </td>
+                                <td>{{ data.invoice.date|to_jalali_date }}</td>
+                                <td>
+                                    {% if data.invoice.customer %}
+                                        {{ data.invoice.customer.username }}
+                                    {% else %}
+                                        {{ data.invoice.company_name|default:"-" }}
+                                    {% endif %}
+                                </td>
+                                <td>{{ data.invoice.total_amount|floatformat:2 }} تومان</td>
+                                <td>
+                                    {% if data.has_return %}
+                                        <span class="badge bg-warning text-dark">بازگشت ثبت‌شده</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">بدون بازگشت</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'warehouse:invoice_detail' data.invoice.id %}"
+                                       class="btn btn-sm btn-primary me-1" title="مشاهده">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="{% url 'warehouse:invoice_edit' data.invoice.id %}"
+                                       class="btn btn-sm btn-primary me-1" title="ویرایش">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a href="{% url 'warehouse:invoice_delete' data.invoice.id %}"
+                                       class="btn btn-sm btn-danger me-1" title="حذف">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                    <a href="{% url 'warehouse:invoice_print' data.invoice.id %}"
+                                       class="btn btn-sm btn-secondary" title="چاپ">
+                                        <i class="bi bi-printer"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-4">
+                                    <i class="bi bi-receipt me-2 text-muted"></i>
+                                    هیچ فاکتوری یافت نشد.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

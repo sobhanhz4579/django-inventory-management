@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}ورود به سیستم مدیریت انبار{% endblock %}
+{% block header_title %}ورود به سیستم{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+        <div class="card shadow p-4" style="width: 100%; max-width: 400px;">
+
+            <!-- لوگو -->
+            <div class="text-center mb-3">
+                <img src="{% static 'images/logo.png' %}" alt="لوگو" style="max-width: 150px;">
+            </div>
+
+            <!-- عنوان -->
+
+
+            <!-- نمایش پیام‌ها -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-dismissible {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'success' %}alert-success{% else %}alert-info{% endif %}">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- فرم ورود -->
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                <!-- نام کاربری -->
+                <div class="mb-3">
+                    <label class="form-label">{{ form.username.label }}</label>
+                    {{ form.username|add_class:"form-control" }}
+                    {% if form.username.errors %}
+                        <div class="text-danger small mt-1">
+                            {% for error in form.username.errors %}
+                                {{ error }}<br>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- رمز عبور -->
+                <div class="mb-3">
+                    <label class="form-label">{{ form.password.label }}</label>
+                    {{ form.password|add_class:"form-control" }}
+                    {% if form.password.errors %}
+                        <div class="text-danger small mt-1">
+                            {% for error in form.password.errors %}
+                                {{ error }}<br>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- دکمه ورود -->
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-box-arrow-in-right me-2"></i> ورود به سیستم
+                </button>
+            </form>
+
+            <!-- لینک بازگشت -->
+            <div class="text-center mt-3">
+                <a href="{% url 'warehouse:dashboard' %}" class="text-decoration-none text-muted">
+                    بازگشت به صفحه اصلی
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

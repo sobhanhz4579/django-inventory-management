@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block title %}لیست کاربران{% endblock %}
+
+{% block content %}
+    <div class="container-fluid py-4">
+        <h2 class="mb-4">لیست کاربران</h2>
+
+        <!-- فرم فیلتر پیشرفته -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title mb-3"><i class="bi bi-funnel me-2"></i>فیلترهای پیشرفته</h5>
+                <form method="get" class="row g-3">
+                    <div class="col-md-6 col-lg-3">
+                        <input type="text" name="q" class="form-control" placeholder="جستجو در همه فیلدها"
+                               value="{{ filters.q }}">
+                    </div>
+                    <div class="col-md-6 col-lg-2">
+                        <input type="text" name="first_name" class="form-control" placeholder="نام"
+                               value="{{ filters.first_name }}">
+                    </div>
+                    <div class="col-md-6 col-lg-2">
+                        <input type="text" name="last_name" class="form-control" placeholder="نام خانوادگی"
+                               value="{{ filters.last_name }}">
+                    </div>
+                    <div class="col-md-6 col-lg-2">
+                        <input type="text" name="username" class="form-control" placeholder="نام کاربری"
+                               value="{{ filters.username }}">
+                    </div>
+
+                    <div class="col-md-6 col-lg-2">
+                        <select name="is_active" class="form-select">
+                            <option value="">وضعیت</option>
+                            <option value="1" {% if filters.is_active == '1' %}selected{% endif %}>فعال</option>
+                            <option value="0" {% if filters.is_active == '0' %}selected{% endif %}>غیرفعال</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 col-lg-2">
+                        <button type="submit" class="btn btn-primary w-100"><i class="bi bi-funnel me-2"></i>فیلتر
+                        </button>
+                    </div>
+                    {% if request.GET %}
+                        <div class="col-md-6 col-lg-2">
+                            <a href="{% url 'warehouse:users_list' %}" class="btn btn-outline-secondary w-100">حذف
+                                فیلترها</a>
+                        </div>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+
+        <!-- دکمه ایجاد کاربر -->
+        <div class="mb-4 text-end">
+            <a href="{% url 'warehouse:user_create' %}" class="btn btn-success px-4">
+                <i class="bi bi-plus-circle me-2"></i>افزودن کاربر
+            </a>
+        </div>
+
+        <!-- لیست کاربران -->
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title mb-3">کاربران</h5>
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered align-middle text-center">
+                        <thead class="table-dark">
+                        <tr>
+                            <th>ردیف</th>
+                            <th>نام کاربری</th>
+                            <th>نام کامل</th>
+                            <th>نقش</th>
+                            <th>وضعیت</th>
+                            <th>گزارشات</th>
+                            <th>عملیات</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for user in users %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>{{ user.username }}</td>
+                                <td>{{ user.get_full_name|default:"-" }}</td>
+                                <td>{{ user.profile.get_role_display }}</td>
+                                <td>
+                                    {% if user.is_active %}
+                                        <span class="badge bg-success">فعال</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">غیرفعال</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'warehouse:user_reports' user.id %}" class="btn btn-sm btn-info">
+                                        <i class="bi bi-file-earmark-text"></i> گزارشات
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="{% url 'warehouse:user_edit' user.id %}"
+                                       class="btn btn-sm btn-primary me-1" title="ویرایش">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a href="{% url 'warehouse:user_delete' user.id %}" class="btn btn-sm btn-danger"
+                                       title="حذف">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-4">
+                                    <i class="bi bi-person me-2 text-muted"></i>
+                                    هیچ کاربری یافت نشد.
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

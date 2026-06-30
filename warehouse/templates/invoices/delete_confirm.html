@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}حذف فاکتور {{ invoice.number }}{% endblock %}
+{% block header_title %}حذف فاکتور {{ invoice.number }}{% endblock %}
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">حذف فاکتور {{ invoice.number }}</h2>
+    <div class="card">
+        <div class="card-body">
+            <p>آیا مطمئن هستید که می‌خواهید فاکتور "{{ invoice.number }}" را حذف کنید؟ این عملیات قابل بازگشت نیست و موجودی کالاها به‌روزرسانی خواهد شد.</p>
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger"><i class="bi bi-trash me-2"></i>حذف</button>
+                <a href="{% url 'warehouse:invoices_list' %}" class="btn btn-secondary"><i class="bi bi-arrow-right-circle me-2"></i>انصراف</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

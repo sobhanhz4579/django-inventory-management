@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load jalali_filters %}
+
+{% block title %}ویرایش کالا {{ item.name }}{% endblock %}
+
+{% block content %}
+    <div class="container my-4">
+        <h2 class="mb-4 text-center">ویرایش کالا {{ item.name }}</h2>
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">اطلاعات کالا</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" id="item-form">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        {% for field in form %}
+                            <div class="col-md-4">
+                                <div class="form-floating">
+                                    {{ field }}
+                                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                    {% if field.errors %}
+                                        <div class="text-danger mt-1">
+                                            {% for error in field.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    {% if field.help_text %}
+                                        <small class="form-text text-muted">{{ field.help_text }}</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-primary"><i class="bi bi-save me-2"></i>ثبت</button>
+                        <a href="{% url 'warehouse:items_list' %}" class="btn btn-secondary"><i
+                                class="bi bi-arrow-right-circle me-2"></i>بازگشت</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('item-form');
+            form.addEventListener('submit', function (event) {
+                const code = document.querySelector('input[name="code"]');
+                const name = document.querySelector('input[name="name"]');
+                const price = document.querySelector('input[name="price"]');
+                if (!code.value.trim()) {
+                    event.preventDefault();
+                    alert('لطفاً کد کالا را وارد کنید.');
+                    code.focus();
+                    return;
+                }
+                if (!name.value.trim()) {
+                    event.preventDefault();
+                    alert('لطفاً نام کالا را وارد کنید.');
+                    name.focus();
+                    return;
+                }
+                if (!price.value.trim()) {
+                    price.value = '0.00'; // Set default price to 0.00 if empty
+                }
+            });
+        });
+    </script>
+{% endblock %}

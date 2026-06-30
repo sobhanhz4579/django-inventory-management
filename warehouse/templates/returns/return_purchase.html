@@ -1,0 +1,226 @@
+{#{% extends 'base.html' %}#}
+{#{% load static %}#}
+{#{% block title %}بازگشت به خرید{% endblock %}#}
+{#{% block header_title %}بازگشت به خرید{% endblock %}#}
+{#{% block content %}#}
+{#    <div class="container">#}
+{#        <div class="row justify-content-center">#}
+{#            <div class="col-md-8">#}
+{#                <div class="card shadow-sm">#}
+{#                    <div class="card-header bg-warning text-white">#}
+{#                        <h5 class="mb-0"><i class="bi bi-arrow-return-left me-2"></i>بازگشت کامل فاکتور</h5>#}
+{#                    </div>#}
+{#                    <div class="card-body">#}
+{#                        <form method="post" id="return-form">#}
+{#                            {% csrf_token %}#}
+{#                            <div class="mb-3">#}
+{#                                <label for="{{ form.invoice.id_for_label }}" class="form-label">فاکتور</label>#}
+{#                                {{ form.invoice }}#}
+{#                            </div>#}
+{##}
+{#                            <!-- نمایش لیست کالاهای فاکتور -->#}
+{#                            <div class="mb-3" id="invoice-items-container" style="display: none;">#}
+{#                                <label class="form-label">کالاهای موجود در فاکتور (همه به صورت کامل بازگشت داده می‌شوند):</label>#}
+{#                                <table class="table table-sm table-bordered">#}
+{#                                    <thead class="table-light">#}
+{#                                        <tr>#}
+{#                                            <th>نام کالا</th>#}
+{#                                            <th>تعداد فروخته‌شده</th>#}
+{#                                            <th>قیمت واحد</th>#}
+{#                                            <th>جمع</th>#}
+{#                                        </tr>#}
+{#                                    </thead>#}
+{#                                    <tbody id="invoice-items-body">#}
+{#                                    </tbody>#}
+{#                                </table>#}
+{#                            </div>#}
+{##}
+{#                            <div class="mb-3">#}
+{#                                <label for="{{ form.reason.id_for_label }}" class="form-label">دلیل بازگشت</label>#}
+{#                                {{ form.reason }}#}
+{#                            </div>#}
+{##}
+{#                            <div class="d-flex justify-content-end">#}
+{#                                <button type="submit" class="btn btn-primary" id="submit-btn" disabled>#}
+{#                                    <i class="bi bi-check-circle me-2"></i>ثبت بازگشت کامل#}
+{#                                </button>#}
+{#                                <a href="{% url 'warehouse:invoices_list' %}" class="btn btn-secondary ms-2">#}
+{#                                    <i class="bi bi-x-circle me-2"></i>انصراف#}
+{#                                </a>#}
+{#                            </div>#}
+{#                        </form>#}
+{#                    </div>#}
+{#                </div>#}
+{#            </div>#}
+{#        </div>#}
+{#    </div>#}
+{##}
+{#    <script>#}
+{#        document.addEventListener('DOMContentLoaded', function () {#}
+{#            const invoiceSelect = document.getElementById('id_invoice');#}
+{#            const reasonInput = document.getElementById('id_reason');#}
+{#            const invoiceItemsContainer = document.getElementById('invoice-items-container');#}
+{#            const invoiceItemsBody = document.getElementById('invoice-items-body');#}
+{#            const submitBtn = document.getElementById('submit-btn');#}
+{##}
+{#            // هر وقت فاکتور تغییر کند#}
+{#            invoiceSelect.addEventListener('change', function () {#}
+{#                const invoiceId = this.value;#}
+{##}
+{#                // پاک کردن لیست قبلی#}
+{#                invoiceItemsBody.innerHTML = '';#}
+{#                invoiceItemsContainer.style.display = 'none';#}
+{#                submitBtn.disabled = true;#}
+{##}
+{#                if (!invoiceId) return;#}
+{##}
+{#                // دریافت اطلاعات فاکتور از سرور#}
+{#                fetch(`{% url 'warehouse:get_invoice_items' %}?invoice_id=${invoiceId}`)#}
+{#                    .then(response => response.json())#}
+{#                    .then(data => {#}
+{#                        if (data.error) {#}
+{#                            alert('خطا: ' + data.error);#}
+{#                            return;#}
+{#                        }#}
+{##}
+{#                        let totalItems = 0;#}
+{#                        data.items.forEach(item => {#}
+{#                            totalItems += item.quantity;#}
+{#                            const row = document.createElement('tr');#}
+{#                            row.innerHTML = `#}
+{#                                <td>${item.name}</td>#}
+{#                                <td>${item.quantity}</td>#}
+{#                                <td>${parseFloat(item.unit_price).toFixed(2)}</td>#}
+{#                                <td>${(item.quantity * item.unit_price).toFixed(2)}</td>#}
+{#                            `;#}
+{#                            invoiceItemsBody.appendChild(row);#}
+{#                        });#}
+{##}
+{#                        invoiceItemsContainer.style.display = 'block';#}
+{#                        submitBtn.disabled = false;#}
+{#                    })#}
+{#                    .catch(err => {#}
+{#                        console.error('خطا در بارگذاری کالاها:', err);#}
+{#                        alert('خطا در دریافت اطلاعات فاکتور.');#}
+{#                    });#}
+{#            });#}
+{##}
+{#            // اگر فاکتور از قبل انتخاب شده بود (مثلاً پس از خطا)#}
+{#            if (invoiceSelect.value) {#}
+{#                invoiceSelect.dispatchEvent(new Event('change'));#}
+{#            }#}
+{#        });#}
+{#    </script>#}
+{#{% endblock %}#}
+{##}
+
+
+
+
+
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}بازگشت به خرید{% endblock %}
+{% block header_title %}بازگشت به خرید{% endblock %}
+{% block content %}
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-warning text-white">
+                        <h5 class="mb-0"><i class="bi bi-arrow-return-left me-2"></i>بازگشت کامل فاکتور</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" id="return-form">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label for="{{ form.invoice.id_for_label }}" class="form-label">فاکتور</label>
+                                {{ form.invoice }}
+                            </div>
+
+                            <!-- نمایش اطلاعات کالاهای فاکتور پس از انتخاب فاکتور -->
+                            <div class="mb-3" id="invoice-details-container" style="display: none;">
+                                <label class="form-label">جزئیات کالاهای فاکتور:</label>
+                                <table class="table table-sm table-bordered">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>نام کالا</th>
+                                            <th>تعداد</th>
+                                            <th>قیمت واحد</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="invoice-items-body">
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="{{ form.reason.id_for_label }}" class="form-label">دلیل بازگشت</label>
+                                {{ form.reason }}
+                            </div>
+                            <div class="d-flex justify-content-end">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-circle me-2"></i>ثبت بازگشت کامل
+                                </button>
+                                <a href="{% url 'warehouse:invoices_list' %}" class="btn btn-secondary ms-2">
+                                    <i class="bi bi-x-circle me-2"></i>انصراف
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const invoiceSelect = document.getElementById('id_invoice');
+            const invoiceDetailsContainer = document.getElementById('invoice-details-container');
+            const invoiceItemsBody = document.getElementById('invoice-items-body');
+
+            // هر وقت فاکتور تغییر کند
+            invoiceSelect.addEventListener('change', function () {
+                const invoiceId = this.value;
+
+                // پاک کردن لیست قبلی
+                invoiceItemsBody.innerHTML = '';
+                invoiceDetailsContainer.style.display = 'none';
+
+                if (!invoiceId) return;
+
+                // دریافت لیست کالاها از سرور
+                fetch(`{% url 'warehouse:get_invoice_items' %}?invoice_id=${invoiceId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            alert('خطا: ' + data.error);
+                            return;
+                        }
+
+                        // پر کردن جدول کالاها
+                        data.items.forEach(item => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${item.name}</td>
+                                <td>${item.quantity}</td>
+                                <td>${parseFloat(item.unit_price).toFixed(2)}</td>
+                            `;
+                            invoiceItemsBody.appendChild(row);
+                        });
+
+                        invoiceDetailsContainer.style.display = 'block';
+                    })
+                    .catch(err => {
+                        console.error('خطا در دریافت کالاها:', err);
+                        alert('خطا در بارگذاری جزئیات فاکتور.');
+                    });
+            });
+
+            // اگر در صفحه بارگذاری شده فاکتور انتخاب شده بود، اجرا شود
+            if (invoiceSelect.value) {
+                invoiceSelect.dispatchEvent(new Event('change'));
+            }
+        });
+    </script>
+{% endblock %}

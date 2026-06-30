@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}داشبورد{% endblock %}
+
+
+{% block content %}
+    <div class="container py-4">
+        <h2 class="mb-4 text-center">داشبورد مدیریت انبار</h2>
+
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
+            <!-- کارت 1: تعداد کالاها -->
+            <div class="col">
+                <div class="card text-white bg-primary shadow rounded h-100">
+                    <div class="card-body text-center">
+                        <h5 class="card-title"><i class="bi bi-boxes me-2"></i>تعداد کل کالاها</h5>
+                        <p class="card-text display-6 fw-bold">{{ items_count|default:0 }}</p>
+                        <a href="{% url 'warehouse:items_list' %}" class="btn btn-outline-light btn-sm mt-3">
+                            <i class="bi bi-list me-2"></i>مشاهده کالاها
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- کارت 2: فاکتورها -->
+            <div class="col">
+                <div class="card text-white bg-success shadow rounded h-100">
+                    <div class="card-body text-center">
+                        <h5 class="card-title"><i class="bi bi-receipt me-2"></i>تعداد فاکتورها</h5>
+                        <p class="card-text display-6 fw-bold">{{ invoices_count|default:0 }}</p>
+                        <a href="{% url 'warehouse:invoices_list' %}" class="btn btn-outline-light btn-sm mt-3">
+                            <i class="bi bi-list me-2"></i>مشاهده فاکتورها
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- کارت 3: گزارشات -->
+            <div class="col">
+                <div class="card text-white bg-info shadow rounded h-100">
+                    <div class="card-body text-center">
+                        <h5 class="card-title"><i class="bi bi-bar-chart me-2"></i>گزارشات</h5>
+                        <p class="card-text display-6 text-white-50">—</p>
+                        <a href="{% url 'warehouse:reports' %}" class="btn btn-outline-light btn-sm mt-3">
+                            <i class="bi bi-list me-2"></i>مشاهده گزارشات
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- کارت 4: موجودی کم -->
+            <div class="col">
+                <div class="card text-white bg-warning shadow rounded h-100">
+                    <div class="card-body text-center">
+                        <h5 class="card-title"><i class="bi bi-exclamation-triangle me-2"></i>کالاهای با موجودی کم</h5>
+                        <p class="card-text display-6 fw-bold">{{ low_stock_count|default:0 }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- کارت 5: کاربران -->
+            <div class="col">
+                <div class="card text-white bg-dark shadow rounded h-100">
+                    <div class="card-body text-center">
+                        <h5 class="card-title"><i class="bi bi-people me-2"></i>کاربران</h5>
+                        <p class="card-text display-6 text-white-50">—</p>
+                        <a href="{% url 'warehouse:users_list' %}" class="btn btn-outline-light btn-sm mt-3">
+                            <i class="bi bi-list me-2"></i>مشاهده کاربران
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- اقدامات سریع -->
+        <div class="mt-5">
+            <h4 class="mb-3 text-center">اقدامات سریع</h4>
+            <div class="d-flex flex-wrap gap-2 justify-content-center">
+                {% if user.is_superuser %}
+                    <a href="{% url 'warehouse:user_create' %}" class="btn btn-outline-secondary rounded shadow-sm">
+                        <i class="bi bi-person-plus me-2"></i>افزودن کاربر
+                    </a>
+                {% endif %}
+                <a href="{% url 'warehouse:item_create' %}" class="btn btn-outline-primary rounded shadow-sm">
+                    <i class="bi bi-plus-circle me-2"></i>افزودن کالا
+                </a>
+                <a href="{% url 'warehouse:invoice_create' %}" class="btn btn-outline-info rounded shadow-sm">
+                    <i class="bi bi-receipt me-2"></i>ایجاد فاکتور
+                </a>
+                <a href="{% url 'warehouse:return_purchase' %}" class="btn btn-outline-warning rounded shadow-sm">
+                    <i class="bi bi-arrow-return-left me-2"></i>بازگشت به خرید
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+

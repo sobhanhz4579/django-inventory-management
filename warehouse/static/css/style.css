@@ -1,0 +1,169 @@
+/* General Styles */
+body {
+    font-family: 'Vazir', sans-serif;
+    background-color: #ffffff; /* پس‌زمینه روشن */
+    color: #212529; /* متن تیره */
+    direction: rtl;
+    text-align: right;
+    line-height: 1.6;
+}
+
+/* Navbar */
+.navbar {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.navbar-brand img {
+    height: 40px;
+}
+
+/* Tables */
+.table-responsive {
+    margin-top: 20px;
+}
+
+.table {
+    color: #212529;
+    background-color: #ffffff;
+}
+
+.table-bordered {
+    border-color: #dee2e6;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #f9f9f9;
+}
+
+/* Formset Rows */
+.formset-row {
+    background-color: #ffffff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* Form Elements */
+.form-floating > label {
+    right: 0;
+    transform-origin: top right;
+    color: #555;
+}
+
+.form-check {
+    margin-bottom: 10px;
+}
+
+.form-check-label {
+    margin-right: 10px;
+    font-weight: 500;
+}
+
+/* Checkboxes and their values */
+.form-check .text-muted {
+    font-size: 0.85rem;
+    margin-right: 25px;
+    margin-top: 2px;
+    color: #6c757d;
+}
+
+/* Error Message for Quantity */
+.quantity-error {
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    color: #dc3545; /* قرمز برای هشدار */
+}
+
+/* Alerts */
+.alert {
+    margin-bottom: 1rem;
+    border-radius: 6px;
+    padding: 12px 15px;
+}
+
+.alert-info {
+    background-color: #e7f3fe;
+    border-color: #b6d4fe;
+    color: #084298;
+}
+
+.alert-success {
+    background-color: #d1e7dd;
+    border-color: #badbcc;
+    color: #0f5132;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    border-color: #f5c2c7;
+    color: #842029;
+}
+
+/* Cards */
+.card {
+    border-radius: 0.75rem;
+    border: 1px solid #e0e0e0;
+    background-color: #ffffff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.card-header {
+    font-weight: bold;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+/* Buttons */
+.btn {
+    min-width: 120px;
+    border-radius: 6px;
+    font-weight: 500;
+    padding: 8px 14px;
+    transition: all 0.2s ease-in-out;
+}
+
+/* رنگ‌های کاربرپسند برای دکمه‌ها */
+.btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-primary:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+}
+
+.btn-success {
+    background-color: #198754;
+    border-color: #198754;
+}
+
+.btn-success:hover {
+    background-color: #157347;
+    border-color: #146c43;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-danger:hover {
+    background-color: #bb2d3b;
+    border-color: #b02a37;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+
+.btn-secondary:hover {
+    background-color: #5c636a;
+    border-color: #565e64;
+}
+
+/* حذف کامل مد دارک */
