@@ -450,7 +450,6 @@ deactivate
 
 ---
 
-## Screenshots
 
 ## Note:** The `.env` file is intentionally excluded from the repository for security reasons. You must create it manually before running the project.
 
